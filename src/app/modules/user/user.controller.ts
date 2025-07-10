@@ -1,27 +1,38 @@
-import { Request, Response } from 'express'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { NextFunction, Request, Response } from 'express'
 import httpStatus from 'http-status-codes'
-import { User } from './user.model'
+import { UserServices } from './user.service'
+import { catchAsync } from '../../utils/catchAsync'
+import { sendResponse } from '../../utils/sendresponse'
 
-const createUser = async (req: Request, res: Response) => {
-  try {
-    const { name, email } = req.body
+const createUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await UserServices.createUser(req.body)
 
-    const user = await User.create({
-      name,
-      email,
-    })
-    res.status(httpStatus.CREATED).json({
-      message: 'User created',
-      user,
-    })
-  } catch (err: any) {
-    res.status(httpStatus.BAD_REQUEST).json({
-      message: `somting wrong ${err.message}`,
-      err,
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: 'User created Successfully',
+      data: user,
     })
   }
-}
+)
+
+const getAllUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await UserServices.getAllUsers()
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.ACCEPTED,
+      message: 'All Users Retrieved Successfully',
+      data: result.users,
+      meta: result.meta,
+    })
+  }
+)
 
 export const userController = {
   createUser,
+  getAllUsers,
 }
