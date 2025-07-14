@@ -3,7 +3,7 @@ import { IAuthProvider, IUser, Role } from './user.interface'
 import { User } from './user.model'
 import httpStatus from 'http-status-codes'
 import bcriptjs from 'bcryptjs'
-import { envVers } from '../../config/env'
+import { envVars } from '../../config/env'
 import { JwtPayload } from 'jsonwebtoken'
 import bcryptjs from 'bcryptjs'
 
@@ -18,7 +18,7 @@ const createUser = async (payload: Partial<IUser>) => {
 
   const hashPassword = await bcriptjs.hash(
     password as string,
-    Number(envVers.BCRYPT_SALT_ROUND)
+    Number(envVars.BCRYPT_SALT_ROUND)
   )
 
   const authProvider: IAuthProvider = {
@@ -77,7 +77,7 @@ const updateUser = async (
   if (payload.password) {
     payload.password = await bcryptjs.hash(
       payload.password,
-      envVers.BCRYPT_SALT_ROUND
+      envVars.BCRYPT_SALT_ROUND
     )
   }
 
