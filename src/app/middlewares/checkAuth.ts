@@ -2,7 +2,10 @@ import { NextFunction, Request, Response } from 'express'
 import AppError from '../errorhelpers/AppError'
 import { JwtPayload } from 'jsonwebtoken'
 import { verifyToken } from '../utils/jwt'
-import { envVers } from '../config/env'
+import { envVars } from '../config/env'
+import { User } from '../modules/user/user.model'
+import httpStatus from 'http-status-codes'
+import { IsActive } from '../modules/user/user.interface'
 
 export const checkAuth =
   (...authRoles: string[]) =>
@@ -15,8 +18,28 @@ export const checkAuth =
       }
       const verifiedToken = verifyToken(
         accessToken,
-        envVers.JWT_ACCESS_SECRET
+        envVars.JWT_ACCESS_SECRET
       ) as JwtPayload
+
+      const isUserExist = await User.findOne({
+        email: verifiedToken.email,
+      })
+
+      if (!isUserExist) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'User does not exist')
+      }
+      if (
+        isUserExist.isActive === IsActive.BLOCKED ||
+        isUserExist.isActive === IsActive.INACTIVE
+      ) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          `User is ${isUserExist.isActive}`
+        )
+      }
+      if (isUserExist.isDeleted) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'User is deleted')
+      }
 
       if (!authRoles.includes(verifiedToken.role)) {
         throw new AppError(403, 'You are not permitted')

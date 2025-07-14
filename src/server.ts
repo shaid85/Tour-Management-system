@@ -2,19 +2,19 @@
 import { Server } from 'http'
 import mongoose from 'mongoose'
 import app from './app'
-import { envVers } from './app/config/env'
+import { envVars } from './app/config/env'
 import { seedSuperAdmin } from './app/utils/seedSuperAdmin'
 
 let server: Server
 
-const port = envVers.PORT || 3000
+const port = envVars.PORT || 3000
 
 const startServer = async () => {
   try {
-    await mongoose.connect(envVers.DB_URL)
+    await mongoose.connect(envVars.DB_URL)
     console.log('MongoDB connected successfully: ')
 
-    if (envVers.NODE_ENV !== 'production') {
+    if (envVars.NODE_ENV !== 'production') {
       server = app.listen(port || 8080, () => {
         console.log(`Server running locally on port: ${port}`)
       })
