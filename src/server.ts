@@ -3,6 +3,7 @@ import { Server } from 'http'
 import mongoose from 'mongoose'
 import app from './app'
 import { envVers } from './app/config/env'
+import { seedSuperAdmin } from './app/utils/seedSuperAdmin'
 
 let server: Server
 
@@ -25,7 +26,11 @@ const startServer = async () => {
     process.exit(1)
   }
 }
-startServer()
+
+;(async () => {
+  await startServer()
+  await seedSuperAdmin()
+})()
 
 // for live server signal
 process.on('SIGTERM', (err) => {
